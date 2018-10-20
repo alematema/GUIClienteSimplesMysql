@@ -174,9 +174,10 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             }
         });
 
-        runSQLJButton.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
-        runSQLJButton.setText("RUN");
+        runSQLJButton.setFont(new java.awt.Font("Ubuntu", 1, 14)); // NOI18N
+        runSQLJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icons8-play-30-ios.png"))); // NOI18N
         runSQLJButton.setToolTipText("EXECUTA SQL STATEMENT");
+        runSQLJButton.setActionCommand("");
         runSQLJButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         runSQLJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -185,7 +186,8 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         });
 
         clearJButton.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
-        clearJButton.setText("CLEAR");
+        clearJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/broom.png"))); // NOI18N
+        clearJButton.setToolTipText("LIMPAR CONSOLE");
         clearJButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         clearJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -231,7 +233,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
         senhausuarioJPasswordField.setText("cursomysql");
 
-        reconnecToServerJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icons8-refresh-50.png"))); // NOI18N
+        reconnecToServerJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/icons8-rotate-right-50.png"))); // NOI18N
         reconnecToServerJButton.setToolTipText("RECONECTAR");
         reconnecToServerJButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         reconnecToServerJButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -252,42 +254,43 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
                 .addComponent(jSeparator1)
                 .addGap(31, 31, 31))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(34, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(scrollerJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(queryExecutingJProgressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 539, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(queryJInputText, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(73, 73, 73)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(runSQLJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(clearJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(12, 12, 12)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel2))
-                            .addGap(11, 11, 11)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(nomeBancoJTextField)
-                                .addComponent(servidorJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(18, 18, 18)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel4)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(usuarioJTextField))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(senhausuarioJPasswordField)))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(reconnecToServerJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(jLabel1)
-                            .addGap(506, 506, 506))))
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel2))
+                        .addGap(11, 11, 11)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(nomeBancoJTextField)
+                            .addComponent(servidorJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(18, 18, 18)
+                                .addComponent(usuarioJTextField))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addGap(18, 18, 18)
+                                .addComponent(senhausuarioJPasswordField)))
+                        .addGap(54, 54, 54)
+                        .addComponent(reconnecToServerJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(506, 506, 506))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(scrollerJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(queryExecutingJProgressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 539, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(queryJInputText, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(clearJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(runSQLJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
                 .addGap(40, 40, 40))
         );
         layout.setVerticalGroup(
