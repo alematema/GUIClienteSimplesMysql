@@ -25,6 +25,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
     String nomeBancoDadosSqlStatements = "sql_statements";
     String nomeUsuarioSqlStatements;
     String senhaUsuarioSqlStatements;
+    int queryProgressBarSleep = 300;
 
     /**
      * Creates new form NewJFrame
@@ -34,6 +35,9 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         this.sqlStatements = new ArrayList();
 
         initComponents();
+
+        setQueryExecutingProgress(0);
+        queryExecutingJProgressBar.setVisible(false);
 
         setUpSqlStatements();
 
@@ -115,6 +119,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         senhausuarioJPasswordField = new javax.swing.JPasswordField();
         jSeparator1 = new javax.swing.JSeparator();
         reconnecToServerJButton = new javax.swing.JButton();
+        queryExecutingJProgressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 221, 216));
@@ -210,6 +215,10 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             }
         });
 
+        queryExecutingJProgressBar.setBackground(new java.awt.Color(0, 255, 123));
+        queryExecutingJProgressBar.setValue(50);
+        queryExecutingJProgressBar.setCursor(new java.awt.Cursor(java.awt.Cursor.MOVE_CURSOR));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -218,42 +227,45 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
                 .addComponent(jSeparator1)
                 .addGap(31, 31, 31))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(41, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(scrollerJScrollPane, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(queryJInputText, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2))
-                        .addGap(11, 11, 11)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(nomeBancoJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 169, Short.MAX_VALUE)
-                            .addComponent(servidorJTextField))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(18, 18, 18)
-                                .addComponent(usuarioJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addGap(18, 18, 18)
-                                .addComponent(senhausuarioJPasswordField)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap(40, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(clearJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel2))
+                                .addGap(11, 11, 11)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(nomeBancoJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 169, Short.MAX_VALUE)
+                                    .addComponent(servidorJTextField))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(usuarioJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(senhausuarioJPasswordField)))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(reconnecToServerJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(40, 40, 40))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(scrollerJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
+                            .addComponent(queryExecutingJProgressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(queryJInputText, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 538, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(runSQLJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(reconnecToServerJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(39, 39, 39))))
+                            .addComponent(clearJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(34, 34, 34))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -282,11 +294,13 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(runSQLJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(queryJInputText, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(clearJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(scrollerJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
-                .addGap(35, 35, 35))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(queryExecutingJProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(clearJButton, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(scrollerJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(97, 97, 97))
         );
 
         pack();
@@ -423,34 +437,60 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             } catch (SQLException ex) {
 
                 handleExecute(queryJInputText.getText());
-                
+
             }
+
         }
 
+        
+
         private void handleExecute(String query) {
-            
+
+            setQueryExecutingProgress(0);
+            queryExecutingJProgressBar.setVisible(true);
+
             try {
-                
+
                 ServicoDePersistencia.executar(query);
+                setQueryExecutingProgress(30);
                 clientGUI.printToFakeMysqlConsole("\nmysql> " + query + " [OK] ");
                 addAndPersistSqlStatement(query);
-                
+                setQueryExecutingProgress(99);
                 clientGUI.queryJInputText.setText("insert query");
-                
+
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(queryProgressBarSleep);
+
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                    setQueryExecutingProgress(0);
+                    queryExecutingJProgressBar.setVisible(false);
+                }).start();
+
             } catch (SQLException ex1) {
                 clientGUI.printErrorToMysqlConsoleFake(ex1.getMessage());
             }
-            
+
         }
 
         private void handleExecuteQuery(String query) throws SQLException {
-            
+
+            setQueryExecutingProgress(0);
+            queryExecutingJProgressBar.setVisible(true);
+
             String result = "";
-            
+
             ResultSet resultSet = ServicoDePersistencia.executarQuery(query);
-            
+
+            setQueryExecutingProgress(30);
+
             result = ServicoDePersistencia.resultSetToString(resultSet);
-            
+
+            setQueryExecutingProgress(60);
+
             if (!result.trim().equals("")) {
                 result = "\n\n" + result;
                 clientGUI.printToFakeMysqlConsole("\nmysql> " + query);
@@ -459,10 +499,25 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
                 clientGUI.printToFakeMysqlConsole("\nmysql> " + query + "[OK]");
                 clientGUI.printToFakeMysqlConsole("\nSEM RESULTADO");
             }
-            
+
+            setQueryExecutingProgress(80);
             addAndPersistSqlStatement(query);
-            
+
             clientGUI.queryJInputText.setText("insert query");
+
+            setQueryExecutingProgress(100);
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(queryProgressBarSleep);
+
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                setQueryExecutingProgress(0);
+                queryExecutingJProgressBar.setVisible(false);
+            }).start();
         }
 
         private void addAndPersistSqlStatement(String sqlStatement) throws SQLException {
@@ -565,17 +620,26 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     private void connect() {
 
+        setQueryExecutingProgress(0);
+        queryExecutingJProgressBar.setVisible(true);
+
         try {
 
             String serverName = servidorJTextField.getText();    //caminho do servidor do BD
 
+            setQueryExecutingProgress(20);
+            
             String mydatabase = nomeBancoJTextField.getText();        //nome do seu banco de dados
 
             String username = usuarioJTextField.getText();        //nome de um usuário de seu BD      
 
             String password = new String(senhausuarioJPasswordField.getPassword());      //sua senha de acesso
 
+            setQueryExecutingProgress(50);
+            
             ServicoDePersistencia.setUpConexaoJDBC(serverName, mydatabase, username, password);
+            
+            setQueryExecutingProgress(90);
 
             printToFakeMysqlConsole("\nmysql> Conectado com sucesso!");
 
@@ -589,6 +653,20 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             printErrorToMysqlConsoleFake("\nmysql> Nao foi possivel conectar ao Banco de Dados.");
             printErrorToMysqlConsoleFake(e.getMessage());
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    Thread.sleep(queryProgressBarSleep);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                setQueryExecutingProgress(0);
+                queryExecutingJProgressBar.setVisible(false);
+            }
+        }).start();
 
     }
 
@@ -604,6 +682,10 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 //        consoleJTextArea.setForeground(current);
     }
 
+    public void setQueryExecutingProgress(int newValue) {
+        queryExecutingJProgressBar.setValue(newValue);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearJButton;
     private javax.swing.JTextArea consoleJTextArea;
@@ -614,6 +696,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField nomeBancoJTextField;
+    private javax.swing.JProgressBar queryExecutingJProgressBar;
     private javax.swing.JTextField queryJInputText;
     private javax.swing.JButton reconnecToServerJButton;
     private javax.swing.JButton runSQLJButton;
