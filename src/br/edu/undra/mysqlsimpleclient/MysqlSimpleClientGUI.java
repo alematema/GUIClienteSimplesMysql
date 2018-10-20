@@ -39,56 +39,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             scrollBar.getModel().setValue(scrollBar.getMaximum());
         });
 
-        keyHandler = new KeyHandler();
-
-        Runnable handler;
-        handler = () -> {
-            runButtonMouseClickedHandler(null);
-        };
-        keyHandler.addHandler(KeyHandler.ENTER, handler);
-
-        handler = () -> {
-            if (sqlStatements.size() > 0) {
-
-                indexLastSqlStatement++;
-
-                if (indexLastSqlStatement > sqlStatements.size() - 1) {
-
-                    indexLastSqlStatement = 0;
-
-                }
-
-                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
-                queryJInputText.setText(sqlStatement);
-
-            }
-        };
-        keyHandler.addHandler(KeyHandler.UP, handler);
-
-        handler = new Runnable() {
-            @Override
-            public void run() {
-
-                if (sqlStatements.size() > 0) {
-
-                    indexLastSqlStatement--;
-
-                    if (indexLastSqlStatement < 0) {
-
-                        indexLastSqlStatement = sqlStatements.size() - 1;
-
-                    }
-
-                    String sqlStatement = sqlStatements.get(indexLastSqlStatement);
-
-                    queryJInputText.setText(sqlStatement);
-
-                }
-
-            }
-
-        };
-        keyHandler.addHandler(KeyHandler.DOWN, handler);
+        setUpKeyHandler();
     }
 
     /**
@@ -351,6 +302,59 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         connect();
 
     }//GEN-LAST:event_reconectarButtonHandler
+
+    private void setUpKeyHandler() {
+        keyHandler = new KeyHandler();
+
+        Runnable handler;
+        handler = () -> {
+            runButtonMouseClickedHandler(null);
+        };
+        keyHandler.addHandler(KeyHandler.ENTER, handler);
+
+        handler = () -> {
+            if (sqlStatements.size() > 0) {
+
+                indexLastSqlStatement++;
+
+                if (indexLastSqlStatement > sqlStatements.size() - 1) {
+
+                    indexLastSqlStatement = 0;
+
+                }
+
+                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
+                queryJInputText.setText(sqlStatement);
+
+            }
+        };
+        keyHandler.addHandler(KeyHandler.UP, handler);
+
+        handler = new Runnable() {
+            @Override
+            public void run() {
+
+                if (sqlStatements.size() > 0) {
+
+                    indexLastSqlStatement--;
+
+                    if (indexLastSqlStatement < 0) {
+
+                        indexLastSqlStatement = sqlStatements.size() - 1;
+
+                    }
+
+                    String sqlStatement = sqlStatements.get(indexLastSqlStatement);
+
+                    queryJInputText.setText(sqlStatement);
+
+                }
+
+            }
+
+        };
+        keyHandler.addHandler(KeyHandler.DOWN, handler);
+    }
 
     class SqlRunnable implements Runnable {
 
