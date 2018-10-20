@@ -1,6 +1,7 @@
 package br.edu.undra.mysqlsimpleclient;
 
 import br.edu.undra.keyhandler.KeyHandler;
+import br.edu.undra.servicodepersistencia.ServicoDePersistencia;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.AdjustmentEvent;
@@ -27,6 +28,8 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
      */
     public MysqlSimpleClientGUI() {
 
+        //ServicoDePersistencia.setUpConexaoJDBC(nomeServidor, nomeBancoDados, nomeUsuario, senhaUsuario);
+        
         this.sqlStatements = new ArrayList();
 
         initComponents();
@@ -366,15 +369,13 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         @Override
         public void run() {
             try {
-                // create the java statement
-                Statement st = connection.createStatement();
-
+                
                 String result = "\n\n";
                 ResultSet resultSet;
 
                 try {
 
-                    resultSet = st.executeQuery(queryJInputText.getText());
+                    resultSet = ServicoDePersistencia.executarQuery(queryJInputText.getText());
 
                     while (resultSet.next()) {
 
@@ -403,7 +404,8 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
                 } catch (Exception e) {
 
-                    st.execute(queryJInputText.getText());
+                    ServicoDePersistencia.executar(queryJInputText.getText());
+                    
                     if (!sqlStatements.contains(queryJInputText.getText())) {
                         sqlStatements.add(queryJInputText.getText());
                     }
@@ -464,42 +466,27 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
         try {
 
-            // Carregando o JDBC Driver padrão
-            String driverName = "com.mysql.jdbc.Driver";
-
-            Class.forName(driverName);
-            // Configurando a nossa conexão com um banco de dados//
             String serverName = servidorJTextField.getText();    //caminho do servidor do BD
 
             String mydatabase = nomeBancoJTextField.getText();        //nome do seu banco de dados
-
-            String url = "jdbc:mysql://" + serverName + "/" + mydatabase;
-
+            
             String username = usuarioJTextField.getText();        //nome de um usuário de seu BD      
 
             String password = new String(senhausuarioJPasswordField.getPassword());      //sua senha de acesso
 
-            connection = DriverManager.getConnection(url, username, password);
+            ServicoDePersistencia.setUpConexaoJDBC(serverName, mydatabase, username, password);
 
-            //Testa sua conexão//  
-            if (connection != null) {
-
-                printToFakeMysqlConsole("\nmysql> Conectado com sucesso!");
-
-            } else {
-
-                printErrorToMysqlConsoleFake("Não foi possivel realizar conexão");
-
-            }
+            printToFakeMysqlConsole("\nmysql> Conectado com sucesso!");
+            
 
         } catch (ClassNotFoundException e) {  //Driver não encontrado
 
-            printErrorToMysqlConsoleFake("O driver expecificado nao foi encontrado.");
+            printErrorToMysqlConsoleFake("\nmysql> O driver expecificado nao foi encontrado.");
             printErrorToMysqlConsoleFake(e.getMessage());
 
         } catch (SQLException e) {
 
-            printErrorToMysqlConsoleFake("Nao foi possivel conectar ao Banco de Dados.");
+            printErrorToMysqlConsoleFake("\nmysql> Nao foi possivel conectar ao Banco de Dados.");
             printErrorToMysqlConsoleFake(e.getMessage());
         }
 
