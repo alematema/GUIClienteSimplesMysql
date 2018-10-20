@@ -1,5 +1,6 @@
 package br.edu.undra.mysqlsimpleclient;
 
+import br.edu.undra.keyhandler.KeyHandler;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.AdjustmentEvent;
@@ -10,6 +11,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JScrollBar;
 
 public class MysqlSimpleClientGUI extends javax.swing.JFrame {
@@ -17,6 +20,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
     private Connection connection = null;
     private Color foregroundColor;
     private final List<String> sqlStatements;
+    private KeyHandler keyHandler;
 
     /**
      * Creates new form NewJFrame
@@ -34,6 +38,57 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             JScrollBar scrollBar = (JScrollBar) event.getAdjustable();
             scrollBar.getModel().setValue(scrollBar.getMaximum());
         });
+
+        keyHandler = new KeyHandler();
+
+        Runnable handler;
+        handler = () -> {
+            runButtonMouseClickedHandler(null);
+        };
+        keyHandler.addHandler(KeyHandler.ENTER, handler);
+
+        handler = () -> {
+            if (sqlStatements.size() > 0) {
+
+                indexLastSqlStatement++;
+
+                if (indexLastSqlStatement > sqlStatements.size() - 1) {
+
+                    indexLastSqlStatement = 0;
+
+                }
+
+                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
+                queryJInputText.setText(sqlStatement);
+
+            }
+        };
+        keyHandler.addHandler(KeyHandler.UP, handler);
+
+        handler = new Runnable() {
+            @Override
+            public void run() {
+
+                if (sqlStatements.size() > 0) {
+
+                    indexLastSqlStatement--;
+
+                    if (indexLastSqlStatement < 0) {
+
+                        indexLastSqlStatement = sqlStatements.size() - 1;
+
+                    }
+
+                    String sqlStatement = sqlStatements.get(indexLastSqlStatement);
+
+                    queryJInputText.setText(sqlStatement);
+
+                }
+
+            }
+
+        };
+        keyHandler.addHandler(KeyHandler.DOWN, handler);
     }
 
     /**
@@ -215,11 +270,12 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
                             .addComponent(servidorJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(usuarioJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel5)
-                            .addComponent(senhausuarioJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(nomeBancoJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(nomeBancoJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel3)
+                                .addComponent(jLabel5)
+                                .addComponent(senhausuarioJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(reconnecToServerJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator1)
@@ -264,50 +320,11 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     private int indexLastSqlStatement = 0;
     private void queryKeyPressedHandler(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_queryKeyPressedHandler
-
-        if (evt.getKeyCode() == 10) {
-            runButtonMouseClickedHandler(null);
+        try {
+            keyHandler.executeHandler(evt.getKeyCode());
+        } catch (Exception ex) {
+            Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (evt.getKeyCode() == 38) {// pressionada seta pra cima
-
-            if (sqlStatements.size() > 0) {
-                
-                indexLastSqlStatement++;
-                
-                if (indexLastSqlStatement > sqlStatements.size()-1) {
-
-                    indexLastSqlStatement = 0;
-
-                }
-                
-                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
-                queryJInputText.setText(sqlStatement);
-
-            }
-
-        }
-
-        if (evt.getKeyCode() == 40) { //pressionada seta pra baixo
-
-            if (sqlStatements.size() > 0) {
-                
-                indexLastSqlStatement--;
-                
-                if (indexLastSqlStatement < 0 ) {
-
-                    indexLastSqlStatement = sqlStatements.size()-1;
-
-                }
-                
-                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
-
-                queryJInputText.setText(sqlStatement);
-
-            }
-
-        }
-
-
     }//GEN-LAST:event_queryKeyPressedHandler
 
     private void clearJButtonMouseClickHandler(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clearJButtonMouseClickHandler
