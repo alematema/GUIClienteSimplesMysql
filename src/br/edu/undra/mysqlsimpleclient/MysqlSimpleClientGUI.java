@@ -25,7 +25,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
     String nomeBancoDadosSqlStatements = "sql_statements";
     String nomeUsuarioSqlStatements;
     String senhaUsuarioSqlStatements;
-    int queryProgressBarSleep = 300;
+    int queryProgressBarSleep = 250;
 
     /**
      * Creates new form NewJFrame
@@ -662,7 +662,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
             ServicoDePersistencia.setUpConexaoJDBC(serverName, mydatabase, username, password);
 
-            setQueryExecutingProgress(90);
+            setQueryExecutingProgress(100);
 
             printToFakeMysqlConsole("\nmysql> Conectado com sucesso!");
 
