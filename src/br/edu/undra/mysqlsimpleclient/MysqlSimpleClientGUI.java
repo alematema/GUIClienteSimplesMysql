@@ -6,10 +6,8 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.AdjustmentEvent;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,31 +16,78 @@ import javax.swing.JScrollBar;
 
 public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
-    private Connection connection = null;
-    private Color foregroundColor;
+    private final Connection connection = null;
+    private final Color foregroundColor;
     private final List<String> sqlStatements;
     private KeyHandler keyHandler;
+
+    String nomeServidorSqlStatements;
+    String nomeBancoDadosSqlStatements = "sql_statements";
+    String nomeUsuarioSqlStatements;
+    String senhaUsuarioSqlStatements;
 
     /**
      * Creates new form NewJFrame
      */
-    public MysqlSimpleClientGUI() {
+    public MysqlSimpleClientGUI() throws ClassNotFoundException, SQLException {
 
-        //ServicoDePersistencia.setUpConexaoJDBC(nomeServidor, nomeBancoDados, nomeUsuario, senhaUsuario);
-        
         this.sqlStatements = new ArrayList();
 
         initComponents();
+
+        setUpSqlStatements();
+
         //centralizes the frame
-        setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - getWidth()) / 2, (Toolkit.getDefaultToolkit().getScreenSize().height - getHeight()) / 2, getWidth(), getHeight());
+        setBounds(
+                (Toolkit.getDefaultToolkit().getScreenSize().width - getWidth()) / 2, (Toolkit.getDefaultToolkit().getScreenSize().height - getHeight()) / 2, getWidth(), getHeight());
         foregroundColor = consoleJTextArea.getForeground();
 
-        scrollerJScrollPane.getVerticalScrollBar().addAdjustmentListener((AdjustmentEvent event) -> {
-            JScrollBar scrollBar = (JScrollBar) event.getAdjustable();
-            scrollBar.getModel().setValue(scrollBar.getMaximum());
-        });
+        scrollerJScrollPane.getVerticalScrollBar()
+                .addAdjustmentListener((AdjustmentEvent event) -> {
+                    JScrollBar scrollBar = (JScrollBar) event.getAdjustable();
+                    scrollBar.getModel().setValue(scrollBar.getMaximum());
+                }
+                );
 
-        setUpKeyHandler();
+        setUpKeyHandlers();
+    }
+
+    private void setUpSqlStatements() throws ClassNotFoundException, SQLException {
+
+        nomeServidorSqlStatements = servidorJTextField.getText();    //caminho do servidor do BD
+
+        nomeUsuarioSqlStatements = usuarioJTextField.getText();        //nome de um usuário de seu BD
+
+        senhaUsuarioSqlStatements = new String(senhausuarioJPasswordField.getPassword());      //sua senha de acesso
+
+        ServicoDePersistencia.setUpConexaoJDBC(nomeServidorSqlStatements, nomeBancoDadosSqlStatements, nomeUsuarioSqlStatements, senhaUsuarioSqlStatements);
+
+        String result = "";
+        ResultSet resultSet;
+
+        try {
+
+            resultSet = ServicoDePersistencia.executarQuery("select * from sql_statements");
+
+            while (resultSet.next()) {
+
+                try {
+
+                    int i = 1;
+
+                    while (true) {
+
+                        sqlStatements.add((Integer) resultSet.getObject(i), (String) resultSet.getObject(i + 1));;
+
+                        i++;
+                    }
+
+                } catch (Exception e) {
+                }
+            }
+
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -268,7 +313,6 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         consoleJTextArea.setForeground(foregroundColor);
 
         new Thread(new SqlRunnable(this)).start();
-        printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText());
 
     }//GEN-LAST:event_runButtonMouseClickedHandler
 
@@ -276,8 +320,10 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
     private void queryKeyPressedHandler(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_queryKeyPressedHandler
         try {
             keyHandler.executeHandler(evt.getKeyCode());
+
         } catch (Exception ex) {
-            Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MysqlSimpleClientGUI.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_queryKeyPressedHandler
 
@@ -306,7 +352,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_reconectarButtonHandler
 
-    private void setUpKeyHandler() {
+    private void setUpKeyHandlers() {
         keyHandler = new KeyHandler();
 
         Runnable handler;
@@ -335,27 +381,28 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
         handler = () -> {
             if (sqlStatements.size() > 0) {
-                
+
                 indexLastSqlStatement--;
-                
+
                 if (indexLastSqlStatement < 0) {
-                    
+
                     indexLastSqlStatement = sqlStatements.size() - 1;
-                    
+
                 }
 
                 String sqlStatement = sqlStatements.get(indexLastSqlStatement);
-                
+
                 queryJInputText.setText(sqlStatement);
-                
+
             }
         };
         keyHandler.addHandler(KeyHandler.DOWN, handler);
-        
+
         handler = () -> {
             queryJInputText.setText("");
         };
         keyHandler.addHandler(KeyHandler.ESCAPE, handler);
+
     }
 
     class SqlRunnable implements Runnable {
@@ -368,54 +415,160 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
         @Override
         public void run() {
+
             try {
-                
-                String result = "\n\n";
-                ResultSet resultSet;
 
-                try {
+                String result = "";
 
-                    resultSet = ServicoDePersistencia.executarQuery(queryJInputText.getText());
+                ResultSet resultSet = ServicoDePersistencia.executarQuery(queryJInputText.getText());
 
-                    while (resultSet.next()) {
+                result = ServicoDePersistencia.resultSetToString(resultSet);
 
-                        try {
-
-                            int i = 1;
-
-                            while (true) {
-
-                                result += (resultSet.getObject(i) + " ");
-
-                                i++;
-                            }
-
-                        } catch (SQLException e) {
-                        }
-
-                        result += "\n";
-
-                    }
-
-                    if (!sqlStatements.contains(queryJInputText.getText())) {
-                        sqlStatements.add(queryJInputText.getText());
-                    }
+                if (!result.trim().equals("")) {
+                    result = "\n\n" + result;
+                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText());
                     clientGUI.printToFakeMysqlConsole(result);
+                } else {
+                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + "[OK]");
+                    clientGUI.printToFakeMysqlConsole("\nSEM RESULTADO");
+                }
 
-                } catch (Exception e) {
+                if (!sqlStatements.contains(queryJInputText.getText())) {
 
-                    ServicoDePersistencia.executar(queryJInputText.getText());
-                    
-                    if (!sqlStatements.contains(queryJInputText.getText())) {
-                        sqlStatements.add(queryJInputText.getText());
+                    sqlStatements.add(queryJInputText.getText());
+
+                    try {
+                        persistirSqlStatement(queryJInputText.getText());
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
                 }
-
+                
                 clientGUI.queryJInputText.setText("insert query");
 
+//            try {
+//
+//                String result = "";
+//                ResultSet resultSet;
+//
+//                try {
+//
+//                    resultSet = ServicoDePersistencia.executarQuery(queryJInputText.getText());
+//
+//                    while (resultSet.next()) {
+//
+//                        try {
+//
+//                            int i = 1;
+//
+//                            while (true) {
+//
+//                                result += (resultSet.getObject(i) + " ");
+//
+//                                i++;
+//                            }
+//
+//                        } catch (SQLException e) {
+//                        }
+//
+//                        if (!result.trim().equals("")) {
+//                            result += "\n";
+//                        }
+//
+//                    }
+//
+//                    if (!result.trim().equals("")) {
+//                        result = "\n\n" + result;
+//                        clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText());
+//                        clientGUI.printToFakeMysqlConsole(result);
+//                    } else {
+//                        clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + "[OK]");
+//                        clientGUI.printToFakeMysqlConsole("\nSEM RESULTADO");
+//                    }
+//
+//                    if (!sqlStatements.contains(queryJInputText.getText())) {
+//
+//                        sqlStatements.add(queryJInputText.getText());
+//
+//                        persistirSqlStatement(queryJInputText.getText());
+//
+//                    }
+//
+//                } catch (Exception e) {
+//
+//                    ServicoDePersistencia.executar(queryJInputText.getText());
+//                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + " [OK] ");
+//
+//                    if (!sqlStatements.contains(queryJInputText.getText())) {
+//
+//                        sqlStatements.add(queryJInputText.getText());
+//                        
+//                        try {
+//                            persistirSqlStatement(queryJInputText.getText());
+//                        } catch (ClassNotFoundException ex) {
+//                            Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
+//                    }
+//
+//                }
+//
+//                clientGUI.queryJInputText.setText("insert query");
+//
+//            } catch (SQLException ex) {
+//                clientGUI.printErrorToMysqlConsoleFake(ex.getMessage());
+//            }
             } catch (SQLException ex) {
-                clientGUI.printErrorToMysqlConsoleFake(ex.getMessage());
+
+                try {
+                    
+                    ServicoDePersistencia.executar(queryJInputText.getText());
+                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + " [OK] ");
+                    
+                    if (!sqlStatements.contains(queryJInputText.getText())) {
+                        
+                        sqlStatements.add(queryJInputText.getText());
+                        
+                        try {
+                            persistirSqlStatement(queryJInputText.getText());
+                        } catch (ClassNotFoundException e) {
+                            Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, e);
+                        }
+                    }
+                    
+                    clientGUI.queryJInputText.setText("insert query");
+                    
+                } catch (SQLException ex1) {
+                    clientGUI.printErrorToMysqlConsoleFake(ex1.getMessage());
+                    //Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+
+            }
+            
+            
+
+        }
+
+        private void persistirSqlStatement(String sqlStatement) throws SQLException, ClassNotFoundException {
+
+            Connection c = ServicoDePersistencia.getConexaoJDBC(nomeServidorSqlStatements, nomeBancoDadosSqlStatements, nomeUsuarioSqlStatements, senhaUsuarioSqlStatements);
+
+            String query = "insert into sql_statements values(" + (sqlStatements.size() - 1) + ",'" + sqlStatement + "')";
+
+            try {
+
+                ServicoDePersistencia.executarQuery(query, c);
+
+            } catch (SQLException e) {
+
+                try {
+
+                    ServicoDePersistencia.executar(query, c);
+
+                } catch (SQLException exx) {
+                    throw exx;
+                }
+
             }
         }
 
@@ -435,16 +588,24 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -453,9 +614,19 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
 
-                MysqlSimpleClientGUI gUI = new MysqlSimpleClientGUI();
-                gUI.setVisible(true);
-                gUI.connect();
+                try {
+                    MysqlSimpleClientGUI gUI = new MysqlSimpleClientGUI();
+                    gUI.setVisible(true);
+                    gUI.connect();
+
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class
+                            .getName()).log(Level.SEVERE, null, ex);
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                }
 
             }
 
@@ -469,7 +640,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             String serverName = servidorJTextField.getText();    //caminho do servidor do BD
 
             String mydatabase = nomeBancoJTextField.getText();        //nome do seu banco de dados
-            
+
             String username = usuarioJTextField.getText();        //nome de um usuário de seu BD      
 
             String password = new String(senhausuarioJPasswordField.getPassword());      //sua senha de acesso
@@ -477,7 +648,6 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             ServicoDePersistencia.setUpConexaoJDBC(serverName, mydatabase, username, password);
 
             printToFakeMysqlConsole("\nmysql> Conectado com sucesso!");
-            
 
         } catch (ClassNotFoundException e) {  //Driver não encontrado
 
