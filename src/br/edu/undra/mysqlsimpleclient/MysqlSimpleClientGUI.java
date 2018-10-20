@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JScrollBar;
 
-public class MysqlSimpleClientGUI extends javax.swing.JFrame {
+public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     private final Connection connection = null;
     private final Color foregroundColor;
@@ -29,6 +29,8 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     /**
      * Creates new form NewJFrame
+     * @throws java.lang.ClassNotFoundException
+     * @throws java.sql.SQLException
      */
     public MysqlSimpleClientGUI() throws ClassNotFoundException, SQLException {
 
@@ -72,7 +74,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
             ServicoDePersistencia.executarQuery("select * from "+ tableName);
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
 
             if (e.getMessage().contains("doesn't exist")) {
                 //System.out.println("doesn't exist");
@@ -106,7 +108,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
                     while (true) {
 
-                        sqlStatements.add((Integer) resultSet.getObject(i), (String) resultSet.getObject(i + 1));;
+                        sqlStatements.add((Integer) resultSet.getObject(i), (String) resultSet.getObject(i + 1));
 
                         i++;
                     }
@@ -505,7 +507,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             setQueryExecutingProgress(0);
             queryExecutingJProgressBar.setVisible(true);
 
-            String result = "";
+            String result;
 
             ResultSet resultSet = ServicoDePersistencia.executarQuery(query);
 
@@ -600,45 +602,29 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
                 }
             }
-        } catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MysqlSimpleClientGUI.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-
-                try {
-                    MysqlSimpleClientGUI gUI = new MysqlSimpleClientGUI();
-                    gUI.setVisible(true);
-                    gUI.connect();
-
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(MysqlSimpleClientGUI.class
-                            .getName()).log(Level.SEVERE, null, ex);
-
-                } catch (SQLException ex) {
-                    Logger.getLogger(MysqlSimpleClientGUI.class
-                            .getName()).log(Level.SEVERE, null, ex);
-                }
-
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                MysqlSimpleClientGUI gUI = new MysqlSimpleClientGUI();
+                gUI.setVisible(true);
+                gUI.connect();
+                
+            } catch (ClassNotFoundException | SQLException ex) {
+                Logger.getLogger(MysqlSimpleClientGUI.class
+                        .getName()).log(Level.SEVERE, null, ex);
+                
             }
-
         });
     }
 
@@ -678,18 +664,14 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             printErrorToMysqlConsoleFake(e.getMessage());
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    Thread.sleep(queryProgressBarSleep);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                setQueryExecutingProgress(0);
-                queryExecutingJProgressBar.setVisible(false);
+        new Thread(() -> {
+            try {
+                Thread.sleep(queryProgressBarSleep);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
+            setQueryExecutingProgress(0);
+            queryExecutingJProgressBar.setVisible(false);
         }).start();
 
     }
