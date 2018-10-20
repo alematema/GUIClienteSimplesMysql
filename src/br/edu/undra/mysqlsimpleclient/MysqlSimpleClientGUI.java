@@ -66,6 +66,31 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
         ServicoDePersistencia.setUpConexaoJDBC(nomeServidorSqlStatements, nomeBancoDadosSqlStatements, nomeUsuarioSqlStatements, senhaUsuarioSqlStatements);
 
+        String tableName = "sql_statements";
+        
+        try {//se nao tiver tabela cria uma novinha
+
+            ServicoDePersistencia.executarQuery("select * from "+ tableName);
+
+        } catch (Exception e) {
+
+            if (e.getMessage().contains("doesn't exist")) {
+                //System.out.println("doesn't exist");
+            }
+
+            
+            String createTableQuery = "create table " + tableName + "(n_indexstate int not null, c_statement text not null)";
+
+            ServicoDePersistencia.executar(createTableQuery);
+
+//            String query = "insert into " + tableName + " values(0,'testando')";
+//
+//            ServicoDePersistencia.executar(query);
+            
+            
+
+        }
+
         String result = "";
         ResultSet resultSet;
 
@@ -442,8 +467,6 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
         }
 
-        
-
         private void handleExecute(String query) {
 
             setQueryExecutingProgress(0);
@@ -628,7 +651,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             String serverName = servidorJTextField.getText();    //caminho do servidor do BD
 
             setQueryExecutingProgress(20);
-            
+
             String mydatabase = nomeBancoJTextField.getText();        //nome do seu banco de dados
 
             String username = usuarioJTextField.getText();        //nome de um usuário de seu BD      
@@ -636,9 +659,9 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
             String password = new String(senhausuarioJPasswordField.getPassword());      //sua senha de acesso
 
             setQueryExecutingProgress(50);
-            
+
             ServicoDePersistencia.setUpConexaoJDBC(serverName, mydatabase, username, password);
-            
+
             setQueryExecutingProgress(90);
 
             printToFakeMysqlConsole("\nmysql> Conectado com sucesso!");
