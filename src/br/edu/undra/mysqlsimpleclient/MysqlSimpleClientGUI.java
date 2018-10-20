@@ -330,30 +330,29 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         };
         keyHandler.addHandler(KeyHandler.UP, handler);
 
-        handler = new Runnable() {
-            @Override
-            public void run() {
-
-                if (sqlStatements.size() > 0) {
-
-                    indexLastSqlStatement--;
-
-                    if (indexLastSqlStatement < 0) {
-
-                        indexLastSqlStatement = sqlStatements.size() - 1;
-
-                    }
-
-                    String sqlStatement = sqlStatements.get(indexLastSqlStatement);
-
-                    queryJInputText.setText(sqlStatement);
-
+        handler = () -> {
+            if (sqlStatements.size() > 0) {
+                
+                indexLastSqlStatement--;
+                
+                if (indexLastSqlStatement < 0) {
+                    
+                    indexLastSqlStatement = sqlStatements.size() - 1;
+                    
                 }
 
+                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
+                
+                queryJInputText.setText(sqlStatement);
+                
             }
-
         };
         keyHandler.addHandler(KeyHandler.DOWN, handler);
+        
+        handler = () -> {
+            queryJInputText.setText("");
+        };
+        keyHandler.addHandler(KeyHandler.ESCAPE, handler);
     }
 
     class SqlRunnable implements Runnable {
