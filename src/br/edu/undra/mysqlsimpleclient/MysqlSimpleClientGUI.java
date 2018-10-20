@@ -418,135 +418,65 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
             try {
 
-                String result = "";
+                handleExecuteQuery(queryJInputText.getText());
 
-                ResultSet resultSet = ServicoDePersistencia.executarQuery(queryJInputText.getText());
-
-                result = ServicoDePersistencia.resultSetToString(resultSet);
-
-                if (!result.trim().equals("")) {
-                    result = "\n\n" + result;
-                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText());
-                    clientGUI.printToFakeMysqlConsole(result);
-                } else {
-                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + "[OK]");
-                    clientGUI.printToFakeMysqlConsole("\nSEM RESULTADO");
-                }
-
-                if (!sqlStatements.contains(queryJInputText.getText())) {
-
-                    sqlStatements.add(queryJInputText.getText());
-
-                    try {
-                        persistirSqlStatement(queryJInputText.getText());
-                    } catch (ClassNotFoundException ex) {
-                        Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                }
-                
-                clientGUI.queryJInputText.setText("insert query");
-
-//            try {
-//
-//                String result = "";
-//                ResultSet resultSet;
-//
-//                try {
-//
-//                    resultSet = ServicoDePersistencia.executarQuery(queryJInputText.getText());
-//
-//                    while (resultSet.next()) {
-//
-//                        try {
-//
-//                            int i = 1;
-//
-//                            while (true) {
-//
-//                                result += (resultSet.getObject(i) + " ");
-//
-//                                i++;
-//                            }
-//
-//                        } catch (SQLException e) {
-//                        }
-//
-//                        if (!result.trim().equals("")) {
-//                            result += "\n";
-//                        }
-//
-//                    }
-//
-//                    if (!result.trim().equals("")) {
-//                        result = "\n\n" + result;
-//                        clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText());
-//                        clientGUI.printToFakeMysqlConsole(result);
-//                    } else {
-//                        clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + "[OK]");
-//                        clientGUI.printToFakeMysqlConsole("\nSEM RESULTADO");
-//                    }
-//
-//                    if (!sqlStatements.contains(queryJInputText.getText())) {
-//
-//                        sqlStatements.add(queryJInputText.getText());
-//
-//                        persistirSqlStatement(queryJInputText.getText());
-//
-//                    }
-//
-//                } catch (Exception e) {
-//
-//                    ServicoDePersistencia.executar(queryJInputText.getText());
-//                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + " [OK] ");
-//
-//                    if (!sqlStatements.contains(queryJInputText.getText())) {
-//
-//                        sqlStatements.add(queryJInputText.getText());
-//                        
-//                        try {
-//                            persistirSqlStatement(queryJInputText.getText());
-//                        } catch (ClassNotFoundException ex) {
-//                            Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-//                        }
-//                    }
-//
-//                }
-//
-//                clientGUI.queryJInputText.setText("insert query");
-//
-//            } catch (SQLException ex) {
-//                clientGUI.printErrorToMysqlConsoleFake(ex.getMessage());
-//            }
             } catch (SQLException ex) {
 
+                handleExecute(queryJInputText.getText());
+                
+            }
+        }
+
+        private void handleExecute(String query) {
+            
+            try {
+                
+                ServicoDePersistencia.executar(query);
+                clientGUI.printToFakeMysqlConsole("\nmysql> " + query + " [OK] ");
+                addAndPersistSqlStatement(query);
+                
+                clientGUI.queryJInputText.setText("insert query");
+                
+            } catch (SQLException ex1) {
+                clientGUI.printErrorToMysqlConsoleFake(ex1.getMessage());
+            }
+            
+        }
+
+        private void handleExecuteQuery(String query) throws SQLException {
+            
+            String result = "";
+            
+            ResultSet resultSet = ServicoDePersistencia.executarQuery(query);
+            
+            result = ServicoDePersistencia.resultSetToString(resultSet);
+            
+            if (!result.trim().equals("")) {
+                result = "\n\n" + result;
+                clientGUI.printToFakeMysqlConsole("\nmysql> " + query);
+                clientGUI.printToFakeMysqlConsole(result);
+            } else {
+                clientGUI.printToFakeMysqlConsole("\nmysql> " + query + "[OK]");
+                clientGUI.printToFakeMysqlConsole("\nSEM RESULTADO");
+            }
+            
+            addAndPersistSqlStatement(query);
+            
+            clientGUI.queryJInputText.setText("insert query");
+        }
+
+        private void addAndPersistSqlStatement(String sqlStatement) throws SQLException {
+            if (!sqlStatements.contains(sqlStatement)) {
+
+                sqlStatements.add(sqlStatement);
+
                 try {
-                    
-                    ServicoDePersistencia.executar(queryJInputText.getText());
-                    clientGUI.printToFakeMysqlConsole("\nmysql> " + queryJInputText.getText() + " [OK] ");
-                    
-                    if (!sqlStatements.contains(queryJInputText.getText())) {
-                        
-                        sqlStatements.add(queryJInputText.getText());
-                        
-                        try {
-                            persistirSqlStatement(queryJInputText.getText());
-                        } catch (ClassNotFoundException e) {
-                            Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, e);
-                        }
-                    }
-                    
-                    clientGUI.queryJInputText.setText("insert query");
-                    
-                } catch (SQLException ex1) {
-                    clientGUI.printErrorToMysqlConsoleFake(ex1.getMessage());
-                    //Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex1);
+                    persistirSqlStatement(sqlStatement);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             }
-            
-            
-
         }
 
         private void persistirSqlStatement(String sqlStatement) throws SQLException, ClassNotFoundException {
