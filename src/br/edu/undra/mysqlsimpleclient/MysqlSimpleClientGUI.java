@@ -8,17 +8,22 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JScrollBar;
 
 public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     private Connection connection = null;
     private Color foregroundColor;
+    private final List<String> sqlStatements;
 
     /**
      * Creates new form NewJFrame
      */
     public MysqlSimpleClientGUI() {
+
+        this.sqlStatements = new ArrayList();
 
         initComponents();
         //centralizes the frame
@@ -61,7 +66,7 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
         setBackground(new java.awt.Color(204, 221, 216));
 
         consoleJTextArea.setEditable(false);
-        consoleJTextArea.setBackground(new java.awt.Color(17, 5, 5));
+        consoleJTextArea.setBackground(new java.awt.Color(1, 1, 1));
         consoleJTextArea.setColumns(20);
         consoleJTextArea.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         consoleJTextArea.setForeground(new java.awt.Color(24, 255, 0));
@@ -257,11 +262,51 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_runButtonMouseClickedHandler
 
+    private int indexLastSqlStatement = 0;
     private void queryKeyPressedHandler(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_queryKeyPressedHandler
 
         if (evt.getKeyCode() == 10) {
             runButtonMouseClickedHandler(null);
         }
+        if (evt.getKeyCode() == 38) {// pressionada seta pra cima
+
+            if (sqlStatements.size() > 0) {
+                
+                indexLastSqlStatement++;
+                
+                if (indexLastSqlStatement > sqlStatements.size()-1) {
+
+                    indexLastSqlStatement = 0;
+
+                }
+                
+                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
+                queryJInputText.setText(sqlStatement);
+
+            }
+
+        }
+
+        if (evt.getKeyCode() == 40) { //pressionada seta pra baixo
+
+            if (sqlStatements.size() > 0) {
+                
+                indexLastSqlStatement--;
+                
+                if (indexLastSqlStatement < 0 ) {
+
+                    indexLastSqlStatement = sqlStatements.size()-1;
+
+                }
+                
+                String sqlStatement = sqlStatements.get(indexLastSqlStatement);
+
+                queryJInputText.setText(sqlStatement);
+
+            }
+
+        }
+
 
     }//GEN-LAST:event_queryKeyPressedHandler
 
@@ -331,11 +376,17 @@ public class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
                     }
 
+                    if (!sqlStatements.contains(queryJInputText.getText())) {
+                        sqlStatements.add(queryJInputText.getText());
+                    }
                     clientGUI.printToFakeMysqlConsole(result);
 
                 } catch (Exception e) {
 
                     st.execute(queryJInputText.getText());
+                    if (!sqlStatements.contains(queryJInputText.getText())) {
+                        sqlStatements.add(queryJInputText.getText());
+                    }
 
                 }
 
