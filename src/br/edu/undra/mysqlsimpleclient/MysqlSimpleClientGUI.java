@@ -29,6 +29,7 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
     /**
      * Creates new form NewJFrame
+     *
      * @throws java.lang.ClassNotFoundException
      * @throws java.sql.SQLException
      */
@@ -69,10 +70,10 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
         ServicoDePersistencia.setUpConexaoJDBC(nomeServidorSqlStatements, nomeBancoDadosSqlStatements, nomeUsuarioSqlStatements, senhaUsuarioSqlStatements);
 
         String tableName = "sql_statements";
-        
+
         try {//se nao tiver tabela cria uma novinha
 
-            ServicoDePersistencia.executarQuery("select * from "+ tableName);
+            ServicoDePersistencia.executarDMLQuery("select * from " + tableName);
 
         } catch (SQLException e) {
 
@@ -80,17 +81,13 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
                 //System.out.println("doesn't exist");
             }
 
-            
             String createTableQuery = "create table " + tableName + "(n_indexstate int not null, c_statement text not null)";
 
-            ServicoDePersistencia.executar(createTableQuery);
+            ServicoDePersistencia.executarDDLQuery(createTableQuery);
 
 //            String query = "insert into " + tableName + " values(0,'testando')";
 //
 //            ServicoDePersistencia.executar(query);
-            
-            
-
         }
 
         String result = "";
@@ -98,7 +95,7 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
         try {
 
-            resultSet = ServicoDePersistencia.executarQuery("select * from sql_statements");
+            resultSet = ServicoDePersistencia.executarDDLQuery("select * from sql_statements");
 
             while (resultSet.next()) {
 
@@ -460,56 +457,81 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
             try {
 
-                handleExecuteQuery(queryJInputText.getText());
+                handleExecuteDDLQuery(queryJInputText.getText());
 
             } catch (SQLException ex) {
 
-                handleExecute(queryJInputText.getText());
+                try {
+                    
+                    handleExecuteDMLQuery(queryJInputText.getText());
+                    
+                } catch (Exception e) {
+                    clientGUI.printErrorToMysqlConsoleFake(e.getMessage());
+                }
 
             }
 
         }
 
-        private void handleExecute(String query) {
+        private void handleExecuteDMLQuery(String query) throws SQLException {
 
             setQueryExecutingProgress(0);
             queryExecutingJProgressBar.setVisible(true);
 
-            try {
+            ServicoDePersistencia.executarDMLQuery(query);
+            setQueryExecutingProgress(30);
+            new Thread(() -> {
 
-                ServicoDePersistencia.executar(query);
-                setQueryExecutingProgress(30);
-                clientGUI.printToFakeMysqlConsole("\nmysql> " + query + " [OK] ");
-                addAndPersistSqlStatement(query);
-                setQueryExecutingProgress(99);
-                clientGUI.queryJInputText.setText("insert query");
+                try {
+                    Thread.sleep(queryProgressBarSleep/2);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(queryProgressBarSleep);
+                
+                setQueryExecutingProgress(70);
+            }).start();
+            
+            
+            clientGUI.printToFakeMysqlConsole("\nmysql> " + query + " [OK] ");
+            addAndPersistSqlStatement(query);
+            
+           new Thread(() -> {
 
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                try {
+                    Thread.sleep(2*queryProgressBarSleep/2);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-                    setQueryExecutingProgress(0);
-                    queryExecutingJProgressBar.setVisible(false);
-                }).start();
+                
+                setQueryExecutingProgress(90);
+            }).start();
+            clientGUI.queryJInputText.setText("insert query");
 
-            } catch (SQLException ex1) {
-                clientGUI.printErrorToMysqlConsoleFake(ex1.getMessage());
-            }
+            new Thread(() -> {
+
+                try {
+                    Thread.sleep(3*queryProgressBarSleep/2);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MysqlSimpleClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                setQueryExecutingProgress(0);
+                queryExecutingJProgressBar.setVisible(false);
+
+            }).start();
 
         }
 
-        private void handleExecuteQuery(String query) throws SQLException {
+        private void handleExecuteDDLQuery(String query) throws SQLException {
 
             setQueryExecutingProgress(0);
             queryExecutingJProgressBar.setVisible(true);
 
             String result;
 
-            ResultSet resultSet = ServicoDePersistencia.executarQuery(query);
+            ResultSet resultSet = ServicoDePersistencia.executarDDLQuery(query);
 
             setQueryExecutingProgress(30);
 
@@ -564,23 +586,17 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
 
             Connection c = ServicoDePersistencia.getConexaoJDBC(nomeServidorSqlStatements, nomeBancoDadosSqlStatements, nomeUsuarioSqlStatements, senhaUsuarioSqlStatements);
 
-            String query = "insert into sql_statements values(" + (sqlStatements.size() - 1) + ",'" + sqlStatement + "')";
+            String query = "insert into sql_statements values(" + (sqlStatements.size() - 1) + ",\"" + sqlStatement + "\")";
 
             try {
 
-                ServicoDePersistencia.executarQuery(query, c);
+                ServicoDePersistencia.executarDMLQuery(query, c);
 
-            } catch (SQLException e) {
+            } catch (Exception e) {
 
-                try {
-
-                    ServicoDePersistencia.executar(query, c);
-
-                } catch (SQLException exx) {
-                    throw exx;
-                }
-
+                ServicoDePersistencia.executarDDLQuery(query, c);
             }
+
         }
 
     }
@@ -609,7 +625,7 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
-        
+
         //</editor-fold>
         //</editor-fold>
 
@@ -619,11 +635,11 @@ public final class MysqlSimpleClientGUI extends javax.swing.JFrame {
                 MysqlSimpleClientGUI gUI = new MysqlSimpleClientGUI();
                 gUI.setVisible(true);
                 gUI.connect();
-                
+
             } catch (ClassNotFoundException | SQLException ex) {
                 Logger.getLogger(MysqlSimpleClientGUI.class
                         .getName()).log(Level.SEVERE, null, ex);
-                
+
             }
         });
     }
